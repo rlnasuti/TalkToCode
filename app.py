@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
-from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import GitLoader
 from langchain.embeddings import OpenAIEmbeddings
+from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from urllib.parse import urlparse
 
@@ -49,9 +50,10 @@ else:
     print("Existing source code loaded! New changes may not be indexed.")
 
 llm = ChatOpenAI(model_name=GPT_MODEL, temperature=0)
-qa_chain = RetrievalQA.from_chain_type(llm,retriever=db.as_retriever())
-
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+#qa = ConversationalRetrievalChain.from_chain_type(llm=llm, chain_type="stuff", retriever=db.as_retriever())
+chat=ConversationalRetrievalChain.from_llm(llm=llm, retriever=db.as_retriever(), memory=memory, verbose=True)
 while(True):
     user_input=input("Me: ")
-    answer = qa_chain({"query": user_input})
-    print(answer['result'])
+    result = chat({"question": f"{user_input}"})
+    print(result['answer'])
