@@ -51,8 +51,8 @@ else:
 
 llm = ChatOpenAI(model_name=GPT_MODEL, temperature=0)
 memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-#qa = ConversationalRetrievalChain.from_chain_type(llm=llm, chain_type="stuff", retriever=db.as_retriever())
 chat=ConversationalRetrievalChain.from_llm(llm=llm, retriever=db.as_retriever(), memory=memory, verbose=True)
+
 while(True):
     user_input=input("Me: ")
     result = chat({"question": f"{user_input}"})
